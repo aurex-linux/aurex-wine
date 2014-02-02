@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Visor de Microsoft PowerPoint 
+Exec=/usr/bin/powerpoint-viewer
+Type=Application
+StartupNotify=true
+Comment=Visualice presentaciones creadas con Microsoft PowerPoint.
+Icon=/usr/share/aurex-wine/ppt-viewer/powerpoint-viewer.svg

@@ -35,7 +35,7 @@ fi
 
 rc=0
 # open required document
+export WINEPREFIX
+wine C:\\\\windows\\\\command\\\\start.exe /Unix $WINEPREFIX/dosdevices/c:/users/$USER/Start\\ Menu/Programs/Visor\\ de\\ Microsoft\\ PowerPoint\\ .lnk "$@" || rc=$?
 
-exit $rc
-
-
+exit $rc || rc=$?
