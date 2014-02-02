@@ -22,7 +22,7 @@
 # vars
 # ----
 
-. /usr/share/aurex-wine/ini-funcs
+. /usr/share/aurex-wine/aurex-ini-funcs
 
 EULA_ACCEPT="$HOME/.config/aurex-wine/eula-accept"
 
