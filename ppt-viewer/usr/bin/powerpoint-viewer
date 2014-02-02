@@ -29,9 +29,7 @@ PPT_REG="$PPT_DIR/reg"
 WINEPREFIX="$HOME/.wine-ppt"
 
 # main
-if [ ! -d "$WINEPREFIX" ] ; then
-	aw-install --wineprefix="$WINEPREFIX" --regfiles="$PPT_REG" --eula="$PPT_EULA" $PPT_EXE /quiet || exit 1
-fi
+aw-install --wineprefix="$WINEPREFIX" --regfiles="$PPT_REG" --eula="$PPT_EULA" $PPT_EXE /quiet || exit 1
 
 rc=0
 # open required document
