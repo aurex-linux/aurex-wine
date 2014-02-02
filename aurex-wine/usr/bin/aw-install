@@ -106,9 +106,20 @@ fi
 export WINEPREFIX="$WINEPREFIX"
 wine $WINDOWS_BINARY "$@" || true
 
+
 if [ "$REGFILES" ] ; then
+	MAX_COUNT=10
+	WAIT_COUNT=1
+	while [ ! -d "$WINEPREFIX" ] || [ -z "$(ls "$WINEPREFIX" |grep -q ".*reg$")" ] ; do
+		[ $WAIT_COUNT -le $MAX_COUNT ] || break
+		sleep 1
+		WAIT_COUNT=$(($WAIT_COUNT + 1))
+	done
 	ls -1 "$REGFILES" 2>/dev/null |while read f; do
+		echo $f
 		if [ -f "$REGFILES/$f" ] ; then
+			echo "ini_update_file $WINEPREFIX/$f $REGFILES/$f" 
+			[ -f "$WINEPREFIX/$f" ] || echo "$WINEPREFIX/$f not found"
 			ini_update_file "$WINEPREFIX/$f" "$REGFILES/$f" || true
 		fi
 	done
