@@ -96,7 +96,7 @@ shift
 [ -d "$WINEPREFIX" ] || usage
 
 if [ "$EULA" ] && ! eula_test "$EULA" ; then
-	if ! zenity --title="EULA"--text-info --filename=/etc/fstab ; then
+	if ! zenity --title="EULA" --text-info --filename="$EULA" ; then
 		zenity --error --text="Ejecución Cancelada por el usuario"
 		exit 1
 	fi
