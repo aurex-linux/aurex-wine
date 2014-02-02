@@ -1,0 +1,3 @@
+[Software\\Wine\\DllOverrides]
+"riched20"="native"
+

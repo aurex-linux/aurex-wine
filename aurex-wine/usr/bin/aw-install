@@ -1,0 +1,117 @@
+#!/bin/sh
+# -------
+# File:        aw-install
+# Description: simple script to install and configure Windows applications with wine
+# Author:      Luis Antonio Garcia Gisbert <luisgg@gmail.com> 
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along 
+# with this program; if not, write to the Free Software Foundation, Inc., 
+# 51 Franklin St, Fifth Floor, Boston MA 02110-1301 USA
+# --------
+
+# vars
+# ----
+
+. /usr/share/aurex-wine/ini-funcs
+
+EULA_ACCEPT="$HOME/.config/aurex-wine/eula-accept"
+
+# funcs
+# -----
+
+die(){
+	echo "$1" >&2
+	exit 1
+}
+
+usage(){
+	die "Usage: $(basename "$0") [options] WINDOWS-BINARY [EXTRA-ARGS ...]\n\
+       Options: --wineprefix=PATH_TO_STORE_WINE_DATA\n\
+                 --regfiles=PATH_TO_REGFILES_DIR\n\
+                 --eula=PATH_TO_EULA_FILE"
+}
+
+eula_accept(){
+	mkdir -p "$(dirname "$EULA_ACCEPT")"
+	EULA_FILE="$(readlink -f "$1")"
+	echo "$EULA_FILE" >> "$EULA_ACCEPT"
+}
+
+eula_test(){
+	EULA_FILE="$(readlink -f "$1")"
+	if grep -q -F "$EULA_FILE" "$EULA_ACCEPT" 2>/dev/null ; then
+		return 0
+	fi
+	return 1
+}
+
+# main
+# -----
+
+# some tests
+[ "$1" ] || usage
+
+WINEPREFIX="$HOME/.wine"
+while [ "${1#--}" != "$1" ] ; do
+	case "$1" in
+		--wineprefix=*)
+			WINEPREFIX="${1#--wineprefix=}"
+			[ "$WINEPREFIX" ] || usage
+			shift
+			;;
+		--regfiles=*)
+			REGFILES="${1#--regfiles=}"
+			[ "$REGFILES" ] || usage
+			[ -d "$REGFILES" ] || usage
+			shift
+			;;
+		--eula=*)
+			EULA="${1#--eula=}"
+			[ "$EULA" ] || usage
+			[ -r "$EULA" ] || usage
+			shift
+			;;
+		*)
+			usage
+			;;
+	esac
+done
+
+[ "$1" ] || usage
+WINDOWS_BINARY="$1"
+[ -r "$1" ] || usage
+shift
+
+[ -d "$WINEPREFIX" ] || mkdir -p "$WINEPREFIX" || true
+[ -d "$WINEPREFIX" ] || usage
+
+if [ "$EULA" ] && ! eula_test "$EULA" ; then
+	if ! zenity --title="EULA"--text-info --filename=/etc/fstab ; then
+		zenity --error --text="Ejecución Cancelada por el usuario"
+		exit 1
+	fi
+	eula_accept "$EULA"
+fi
+
+export WINEPREFIX="$WINEPREFIX"
+wine $WINDOWS_BINARY "$@" || true
+
+if [ "$REGFILES" ] ; then
+	ls -1 "$REGFILES" 2>/dev/null |while read f; do
+		if [ -f "$REGFILES/$f" ] ; then
+			ini_update_file "$WINEPREFIX/$f" "$REGFILES/$f" || true
+		fi
+	done
+fi
+
+exit 0

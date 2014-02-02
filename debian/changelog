@@ -1,0 +1,24 @@
+aurex-wine (1.6.1+aurex3) precise; urgency=low
+
+  * Added dependency on powerpoint-viewer-bin. That package provides the
+    Microsoft PowerPointViewer executable.
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Sun, 02 Feb 2014 10:16:06 +0100
+
+aurex-wine (1.6.1+aurex2) precise; urgency=low
+
+  * New binary package aurex-powerpoint-viewer
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Sat, 01 Feb 2014 11:31:51 +0100
+
+aurex-wine (1.6.1+aurex1) precise; urgency=low
+
+  * Added transitional packages
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Mon, 27 Jan 2014 17:01:08 +0100
+
+aurex-wine (1.6.1) precise; urgency=low
+
+  * Initial release. Solves upgrade issues from wine1.4 in amd64 architecture
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Sun, 26 Jan 2014 17:55:58 +0100

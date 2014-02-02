@@ -1,0 +1,26 @@
+Format-Specification: http://wiki.debian.org/Proposals/CopyrightFormat?action=recall&rev=143
+Upstream-Name: aurex-wine
+Upstream-Source: https://github.com/luisgg/
+
+Files: *
+Copyright: Copyright 2014 Luis Antonio Garcia Gisbert <luisgg@gmail.com>
+License: GPL-3+
+
+Files: artwork/Magnifying_Glass_clip_art.svg, artwork/microsoft-office-powerpoint.svg
+Copyright: Copyright All-free-download (http://all-free-download.com/)
+License: free (unspecified)
+
+Files: ppt-viewer/usr/share/aurex-wine/ppt-viewer/PowerPointViewer.exe
+Copyright: Copyright Microsoft (http://www.microsoft.com/es-es/download/details.aspx?id=13)
+License: Other non free license. Distributable under the terms related
+         in file EULA-PowerPointViewer.txt
+
+License: GPL-3+
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+   on any Debian system you can find a copy of the newest GNU GPL at
+   '/usr/share/common-licenses/GPL'
+

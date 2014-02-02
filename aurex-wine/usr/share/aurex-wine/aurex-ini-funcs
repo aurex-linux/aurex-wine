@@ -1,0 +1,163 @@
+# -------
+# File:        aurex-ini-funcs
+# Description: Shell script functions to manipulate ini files
+# Author:      Luis Antonio Garcia Gisbert <luisgg@gmail.com> 
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along 
+# with this program; if not, write to the Free Software Foundation, Inc., 
+# 51 Franklin St, Fifth Floor, Boston MA 02110-1301 USA
+# --------
+
+ini_escape(){
+	echo "$1" |sed 's!\([]\*\$\/&[]\)!\\\1!g'
+}
+
+ini_get_section(){
+	REG_FILE="$1"
+	#SEC_NAME="$(echo "$2" |sed 's!\([]\*\$\/&[]\)!\\\1!g')"
+	SEC_NAME="$(ini_escape "$2")"
+	sed -ne "/^\[$SEC_NAME\]/,/^\[/p" "$REG_FILE"
+#	sed -ne "/^\[$(echo "$SEC_NAME"|sed -e "s%\\\%\\\\\\\\%g")\]/,/^\[/p" "$REG_FILE"
+}
+
+ini_test_section(){
+	REG_FILE="$1"
+	#SEC_NAME="$(echo "$2" |sed 's!\([]\*\$\/&[]\)!\\\1!g')"
+	SEC_NAME="$(ini_escape "$2")"
+	rc=0
+	grep -q "^\[$SEC_NAME\]" "$REG_FILE" || rc=1
+	return $rc
+}
+
+ini_get_sectionline(){
+	REG_FILE="$1"
+	SEC_NAME="$(ini_escape "$2")"
+	sed -ne "/^\[$SEC_NAME\]/p" "$REG_FILE"
+}
+
+ini_get_pre_sections(){
+	REG_FILE="$1"
+	#SEC_NAME="$(echo "$2" |sed 's!\([]\*\$\/&[]\)!\\\1!g')"
+	SEC_NAME="$(ini_escape "$2")"
+	sed -ne "1,/^\[$SEC_NAME\]/p" "$REG_FILE"
+#	sed -ne "/^\[$(echo "$SEC_NAME"|sed -e "s%\\\%\\\\\\\\%g")\]/,/^\[/p" "$REG_FILE"
+}
+
+ini_get_post_sections(){
+	REG_FILE="$1"
+	#SEC_NAME="$(echo "$2" |sed 's!\([]\*\$\/&[]\)!\\\1!g')"
+	SEC_NAME="$(ini_escape "$2")"
+	sed -e "1,/^\[$SEC_NAME\]/d" "$REG_FILE" |sed -e "1,/^\[/{/^[^\[]/d}"
+#	sed -ne "/^\[$(echo "$SEC_NAME"|sed -e "s%\\\%\\\\\\\\%g")\]/,/^\[/p" "$REG_FILE"
+}
+
+ini_list_sections(){
+	REG_FILE="$1"
+	sed -ne "/^\[/{s%^\[%%;s%\].*$%%;p}" "$REG_FILE" |sed 's!\([]\*\$\/&[]\)!\\\1!g'
+}
+
+ini_list_vars(){
+	REG_FILE="$1"
+	SEC_NAME="$2"
+	ini_get_section "$REG_FILE" "$SEC_NAME" |sed -ne "/^[^\[].*=/{s%^[[:blank:]]*%%;s%[[:blank:]]*=.*$%%;p}"
+}
+
+ini_list_varlines(){
+	REG_FILE="$1"
+	SEC_NAME="$2"
+	ini_get_section "$REG_FILE" "$SEC_NAME" |sed -ne "/^[^\[].*=/p"
+}
+
+ini_get_var(){
+	REG_FILE="$1"
+	SEC_NAME="$2"
+	VAR_NAME="$3"
+	ini_get_section "$REG_FILE" "$SEC_NAME" |sed -ne "/^[[:blank:]]*${VAR_NAME}[[:blank:]]*=/{s%^.*=%%;p}"
+}
+
+ini_get_varline(){
+	REG_FILE="$1"
+	SEC_NAME="$2"
+	VAR_NAME="$3"
+	ini_get_section "$REG_FILE" "$SEC_NAME" |sed -ne "/^[[:blank:]]*${VAR_NAME}[[:blank:]]*=/p"
+}
+
+ini_test_var(){
+	REG_FILE="$1"
+	SEC_NAME="$2"
+	VAR_NAME="$3"
+	rc=0
+	ini_get_varline "$REG_FILE" "$SEC_NAME" "$VAR_NAME" |grep -q "." || rc=1
+	return $rc
+}
+
+ini_test_varline(){
+	REG_FILE="$1"
+	VAR_LINE="$2"
+	VAR_NAME="$(ini_varline_name "$VAR_LINE")"
+	rc=0
+	grep -q "^[[:blank:]]*${VAR_NAME}[[:blank:]]*=" "$REG_FILE" || rc=1
+	return $rc
+}
+
+ini_varline_name(){
+	VAR_LINE="$1"
+	echo "$VAR_LINE" |sed -e "s%[[:blank:]]*=.*$%%"
+}
+
+ini_varline_value(){
+	VAR_LINE="$1"
+	echo "$VAR_LINE" |sed -e "s%^.*=[[:blank:]]*%%"
+}
+
+ini_replace_varline(){
+	REG_FILE="$1"
+	VAR_LINE="$2"
+	if ini_test_varline "$REG_FILE" "$VAR_LINE" ; then
+		VAR_NAME="$(ini_varline_name "$VAR_LINE")"
+		VAR_VALUE="$(ini_varline_value "$VAR_LINE")"
+		sed -i -e "/^[[:blank:]]*${VAR_NAME}[[:blank:]]*=[[:blank:]]*/s%\(^[[:blank:]]*${VAR_NAME}[[:blank:]]*=[[:blank:]]*\).*$%\1$VAR_VALUE%" "$REG_FILE"
+	elif [ -s "$REG_FILE" ]; then
+		sed -i -e "1i${VAR_LINE}" "$REG_FILE"
+	else
+		echo "${VAR_LINE}" > "$REG_FILE"
+	fi
+}
+
+ini_update_file(){
+	TARGET_FILE="$1"
+	SOURCE_FILE="$2"
+	if [ ! -s "$TARGET_FILE" ] ; then
+		cp "$SOURCE_FILE" "$TARGET_FILE"
+		return 0
+	fi
+	PRE_TMP="$(tempfile)"
+	POST_TMP="$(tempfile)"
+	WORK_TMP="$(tempfile)"
+	ini_list_sections "$SOURCE_FILE" |while read s; do
+		ini_get_pre_sections "$TARGET_FILE" "$s" > "$PRE_TMP"
+		ini_get_post_sections "$TARGET_FILE" "$s" > "$POST_TMP"
+		if ini_test_section "$TARGET_FILE" "$s" ; then
+			ini_list_varlines "$TARGET_FILE" "$s" > "$WORK_TMP"
+		else
+			ini_get_sectionline "$SOURCE_FILE" "$s" >> "$PRE_TMP"
+			:> "$WORK_TMP"
+		fi
+		ini_list_varlines "$SOURCE_FILE" "$s" |while read l; do
+			ini_replace_varline "$WORK_TMP"	 "$l"
+		done		
+	done
+	cat "$PRE_TMP" "$WORK_TMP" "$POST_TMP" > "$TARGET_FILE"
+	rm -f "$PRE_TMP" "$WORK_TMP" "$POST_TMP"
+}
+
