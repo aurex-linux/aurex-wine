@@ -25,6 +25,7 @@
 . /usr/share/aurex-wine/aurex-ini-funcs
 
 EULA_ACCEPT="$HOME/.config/aurex-wine/eula-accept"
+APP_INSTALLED="$HOME/.config/aurex-wine/installed"
 
 # funcs
 # -----
@@ -38,7 +39,8 @@ usage(){
 	die "Usage: $(basename "$0") [options] WINDOWS-BINARY [EXTRA-ARGS ...]\n\
        Options: --wineprefix=PATH_TO_STORE_WINE_DATA\n\
                  --regfiles=PATH_TO_REGFILES_DIR\n\
-                 --eula=PATH_TO_EULA_FILE"
+                 --eula=PATH_TO_EULA_FILEi\n\
+                 --force"
 }
 
 eula_accept(){
@@ -55,6 +57,16 @@ eula_test(){
 	return 1
 }
 
+app_accept(){
+	mkdir -p "$APP_INSTALLED"
+	itouch "$APP_INSTALLED/$1"
+}
+
+app_test(){
+	[ -f "$APP_INSTALLED/$1" ] || return 1
+	return 0
+}
+
 # main
 # -----
 
@@ -62,6 +74,8 @@ eula_test(){
 [ "$1" ] || usage
 
 WINEPREFIX="$HOME/.wine"
+FORCE=""
+
 while [ "${1#--}" != "$1" ] ; do
 	case "$1" in
 		--wineprefix=*)
@@ -81,6 +95,10 @@ while [ "${1#--}" != "$1" ] ; do
 			[ -r "$EULA" ] || usage
 			shift
 			;;
+		--force)
+			FORCE="Y"
+			shift
+			;;
 		*)
 			usage
 			;;
@@ -92,9 +110,6 @@ WINDOWS_BINARY="$1"
 [ -r "$1" ] || usage
 shift
 
-[ -d "$WINEPREFIX" ] || mkdir -p "$WINEPREFIX" || true
-[ -d "$WINEPREFIX" ] || usage
-
 if [ "$EULA" ] && ! eula_test "$EULA" ; then
 	if ! zenity --width=600 --height=400 --title="EULA" --text-info --filename="$EULA" ; then
 		zenity --error --text="Ejecución Cancelada por el usuario"
@@ -103,26 +118,32 @@ if [ "$EULA" ] && ! eula_test "$EULA" ; then
 	eula_accept "$EULA"
 fi
 
-export WINEPREFIX="$WINEPREFIX"
-wine $WINDOWS_BINARY "$@" || true
+if ! app_test "$WINDOWS_BINARY" ; then
+	[ -d "$WINEPREFIX" ] || mkdir -p "$WINEPREFIX" || true
+	[ -d "$WINEPREFIX" ] || usage
 
 
-if [ "$REGFILES" ] ; then
-	MAX_COUNT=10
-	WAIT_COUNT=1
-	while [ ! -d "$WINEPREFIX" ] || [ -z "$(ls "$WINEPREFIX" |grep -q ".*reg$")" ] ; do
-		[ $WAIT_COUNT -le $MAX_COUNT ] || break
-		sleep 1
-		WAIT_COUNT=$(($WAIT_COUNT + 1))
-	done
-	ls -1 "$REGFILES" 2>/dev/null |while read f; do
-		echo $f
-		if [ -f "$REGFILES/$f" ] ; then
-			echo "ini_update_file $WINEPREFIX/$f $REGFILES/$f" 
-			[ -f "$WINEPREFIX/$f" ] || echo "$WINEPREFIX/$f not found"
-			ini_update_file "$WINEPREFIX/$f" "$REGFILES/$f" || true
-		fi
-	done
+	export WINEPREFIX="$WINEPREFIX"
+	wine $WINDOWS_BINARY "$@" || true
+
+
+	if [ "$REGFILES" ] ; then
+		MAX_COUNT=10
+		WAIT_COUNT=1
+		printf "Configuring wine "
+		while [ ! -d "$WINEPREFIX" ] || [ -z "$(ls "$WINEPREFIX" |grep -q ".*reg$")" ] ; do
+			[ $WAIT_COUNT -le $MAX_COUNT ] || break
+			printf "."
+			sleep 1
+			WAIT_COUNT=$(($WAIT_COUNT + 1))
+		done
+		ls -1 "$REGFILES" 2>/dev/null |while read f; do
+			echo $f
+			if [ -f "$REGFILES/$f" ] ; then
+				ini_update_file "$WINEPREFIX/$f" "$REGFILES/$f" || true
+			fi
+		done
+	fi
+	app_accept "$WINDOWS_BINARY"
 fi
-
 exit 0
