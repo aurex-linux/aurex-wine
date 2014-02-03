@@ -59,13 +59,27 @@ eula_test(){
 
 app_accept(){
 	mkdir -p "$APP_INSTALLED"
-	itouch "$APP_INSTALLED/$1"
+	touch "$APP_INSTALLED/$1"
 }
 
 app_test(){
 	[ -f "$APP_INSTALLED/$1" ] || return 1
 	return 0
 }
+
+wine_wait(){
+	WINEPREFIX="$1"
+	MAX_COUNT=20
+	WAIT_COUNT=1
+	printf "Configuring wine "
+	while [ ! -d "$WINEPREFIX" ] || ! ls "$WINEPREFIX" |grep -q ".*reg$" ; do
+		[ $WAIT_COUNT -le $MAX_COUNT ] || break
+		printf "."
+		sleep 1
+		WAIT_COUNT=$(($WAIT_COUNT + 1))
+	done
+}
+
 
 # main
 # -----
@@ -111,7 +125,7 @@ WINDOWS_BINARY="$1"
 shift
 
 if [ "$EULA" ] && ! eula_test "$EULA" ; then
-	if ! zenity --width=600 --height=400 --title="EULA" --text-info --filename="$EULA" ; then
+	if ! zenity --width=600 --height=400 --title="EULA ($(basename "$WINDOWS_BINARY")" --text-info --filename="$EULA" ; then
 		zenity --error --text="Ejecución Cancelada por el usuario"
 		exit 1
 	fi
@@ -128,17 +142,8 @@ if ! app_test "$WINDOWS_BINARY" ; then
 
 
 	if [ "$REGFILES" ] ; then
-		MAX_COUNT=10
-		WAIT_COUNT=1
-		printf "Configuring wine "
-		while [ ! -d "$WINEPREFIX" ] || [ -z "$(ls "$WINEPREFIX" |grep -q ".*reg$")" ] ; do
-			[ $WAIT_COUNT -le $MAX_COUNT ] || break
-			printf "."
-			sleep 1
-			WAIT_COUNT=$(($WAIT_COUNT + 1))
-		done
+		wine_wait "$WINEPREFIX"  |zenity --title="$(basename "$WINDOWS_BINARY")" --progress --pulsate --text="Configuring $(basename "$WINDOWS_BINARY")" --auto-close --no-cancel
 		ls -1 "$REGFILES" 2>/dev/null |while read f; do
-			echo $f
 			if [ -f "$REGFILES/$f" ] ; then
 				ini_update_file "$WINEPREFIX/$f" "$REGFILES/$f" || true
 			fi
