@@ -27,15 +27,17 @@ PPT_EXE="$PPT_DIR/PowerPointViewer.exe"
 PPT_EULA="$PPT_DIR/EULA-PowerPointViewer.txt"
 PPT_REG="$PPT_DIR/reg"
 WINEPREFIX="$HOME/.wine-ppt"
+WINEDLLOVERRIDES="riched20=n"
 
 # main
-aw-install --wineprefix="$WINEPREFIX" --regfiles="$PPT_REG" --eula="$PPT_EULA" $PPT_EXE /quiet || exit 1
+aw-install --wineprefix="$WINEPREFIX" --eula="$PPT_EULA" $PPT_EXE /quiet || exit 1
 
 rc=0
 # open required document
 ARG_FILE=""
 [ -z "$1" ] || ARG_FILE="z:$@"
 export WINEPREFIX
+export WINEDLLOVERRIDES
 wine C:\\\\windows\\\\command\\\\start.exe /Unix $WINEPREFIX/dosdevices/c:/users/$USER/Start\ Menu/Programs/Visor\ de\ Microsoft\ PowerPoint\ .lnk "$ARG_FILE" || rc=$?
 
 exit $rc || rc=$?
