@@ -38,7 +38,7 @@ Description: wine1.4 transitional package
 
 Package: aurex-powerpoint-viewer
 Architecture: all
-Depends: ${misc:Depends}, powerpoint-viewer-bin, wine1.6, aurex-wine (>= 1.6.1+aurex3), aurex-default-settings (>=12.04.51)
+Depends: ${misc:Depends}, powerpoint-viewer-bin, wine1.6, aurex-wine (>= 1.6.1+aurex3), aurex-default-associations (>=12.04.51)
 Description: Microsoft PowerPoint Viewer
  This package automagically installs and configures
  Microsoft PowerPoint Viewer to run under wine
