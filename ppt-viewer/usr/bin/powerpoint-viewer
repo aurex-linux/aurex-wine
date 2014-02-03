@@ -36,12 +36,13 @@ rc=0
 # open required document
 ARG_FILE=""
 if [ "$1" ] ; then
-	TMP_FILE="$(tempfile)"
+	TMP_SUFFIX=".${1##*.}"
+	TMP_FILE="$(tempfile --suffix "$TMP_SUFFIX")"
 	cp "$1" "$TMP_FILE"
 	ARG_FILE="z:$TMP_FILE"
 fi
 export WINEPREFIX
 export WINEDLLOVERRIDES
 wine C:\\\\windows\\\\command\\\\start.exe /Unix $WINEPREFIX/dosdevices/c:/users/$USER/Start\ Menu/Programs/Visor\ de\ Microsoft\ PowerPoint\ .lnk "$ARG_FILE" || rc=$?
-[ -z "$TMP_FILE" ] || rm -f "$TMP_FILE"
+#[ -z "$TMP_FILE" ] || rm -f "$TMP_FILE"
 exit $rc || rc=$?
