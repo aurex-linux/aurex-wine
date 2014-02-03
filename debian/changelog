@@ -1,6 +1,8 @@
 aurex-wine (1.6.1+aurex6) precise; urgency=low
 
   * Depends fixed
+  * Use tempfile as workaround to random errors when accessing files
+    shared over the network
 
  -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Mon, 03 Feb 2014 09:19:51 +0100
 
