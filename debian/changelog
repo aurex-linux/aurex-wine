@@ -1,3 +1,9 @@
+aurex-wine (1.6.1+aurex5) precise; urgency=low
+
+  * Fix powerpoint-viewer script when executed without arguments
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Mon, 03 Feb 2014 02:33:43 +0100
+
 aurex-wine (1.6.1+aurex4) precise; urgency=low
 
   * Use aurex-update-associations to register powerpoint-viewer

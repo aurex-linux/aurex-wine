@@ -21,7 +21,7 @@
 
 # vars
 # ----
-echo "$@" > /tmp/powerpoint-viwer.args
+
 PPT_DIR="/usr/share/aurex-wine/ppt-viewer"
 PPT_EXE="$PPT_DIR/PowerPointViewer.exe"
 PPT_EULA="$PPT_DIR/EULA-PowerPointViewer.txt"
@@ -33,7 +33,9 @@ aw-install --wineprefix="$WINEPREFIX" --regfiles="$PPT_REG" --eula="$PPT_EULA" $
 
 rc=0
 # open required document
+ARG_FILE=""
+[ -z "$1" ] || ARG_FILE="z:$@"
 export WINEPREFIX
-wine C:\\\\windows\\\\command\\\\start.exe /Unix $WINEPREFIX/dosdevices/c:/users/$USER/Start\ Menu/Programs/Visor\ de\ Microsoft\ PowerPoint\ .lnk "z:$@" || rc=$?
+wine C:\\\\windows\\\\command\\\\start.exe /Unix $WINEPREFIX/dosdevices/c:/users/$USER/Start\ Menu/Programs/Visor\ de\ Microsoft\ PowerPoint\ .lnk "$ARG_FILE" || rc=$?
 
 exit $rc || rc=$?
