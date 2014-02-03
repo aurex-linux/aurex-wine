@@ -1,3 +1,9 @@
+aurex-wine (1.6.1+aurex7) precise; urgency=low
+
+  * Remove old tempfiles in each run
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Mon, 03 Feb 2014 16:08:55 +0100
+
 aurex-wine (1.6.1+aurex6) precise; urgency=low
 
   * Depends fixed

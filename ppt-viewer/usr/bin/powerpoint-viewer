@@ -19,6 +19,18 @@
 # 51 Franklin St, Fifth Floor, Boston MA 02110-1301 USA
 # --------
 
+# funcs
+# ----
+
+tmp_clean(){
+	ls -1 "$TMP_DIR" 2>/dev/null |while read t; do
+		if ! lsof "$TMP_DIR/$t" >/dev/null ; then
+			rm -f "$TMP_DIR/$t"
+		fi
+	done
+}
+
+
 # vars
 # ----
 
@@ -28,8 +40,10 @@ PPT_EULA="$PPT_DIR/EULA-PowerPointViewer.txt"
 PPT_REG="$PPT_DIR/reg"
 WINEPREFIX="$HOME/.wine-ppt"
 WINEDLLOVERRIDES="riched20=n"
+TMP_DIR="/tmp/PPT-VIEWER"
 
 # main
+mkdir -p "$TMP_DIR"
 aw-install --wineprefix="$WINEPREFIX" --eula="$PPT_EULA" $PPT_EXE /quiet || exit 1
 
 rc=0
@@ -37,7 +51,7 @@ rc=0
 ARG_FILE=""
 if [ "$1" ] ; then
 	TMP_SUFFIX=".${1##*.}"
-	TMP_FILE="$(tempfile --suffix "$TMP_SUFFIX")"
+	TMP_FILE="$(tempfile -d "$TMP_DIR" -m 664 --suffix "$TMP_SUFFIX")"
 	cp "$1" "$TMP_FILE"
 	ARG_FILE="z:$TMP_FILE"
 fi
@@ -45,4 +59,5 @@ export WINEPREFIX
 export WINEDLLOVERRIDES
 wine C:\\\\windows\\\\command\\\\start.exe /Unix $WINEPREFIX/dosdevices/c:/users/$USER/Start\ Menu/Programs/Visor\ de\ Microsoft\ PowerPoint\ .lnk "$ARG_FILE" || rc=$?
 #[ -z "$TMP_FILE" ] || rm -f "$TMP_FILE"
+tmp_clean
 exit $rc || rc=$?
