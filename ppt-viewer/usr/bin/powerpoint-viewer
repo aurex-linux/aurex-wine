@@ -43,21 +43,23 @@ WINEDLLOVERRIDES="riched20=n"
 TMP_DIR="/tmp/PPT-VIEWER"
 
 # main
-mkdir -p "$TMP_DIR"
+#mkdir -p "$TMP_DIR"
 aw-install --wineprefix="$WINEPREFIX" --eula="$PPT_EULA" $PPT_EXE /quiet || exit 1
 
 rc=0
 # open required document
 ARG_FILE=""
 if [ "$1" ] ; then
-	TMP_SUFFIX=".${1##*.}"
-	TMP_FILE="$(tempfile -d "$TMP_DIR" -m 664 --suffix "$TMP_SUFFIX")"
-	cp "$1" "$TMP_FILE"
-	ARG_FILE="z:$TMP_FILE"
+#	TMP_SUFFIX=".${1##*.}"
+#	TMP_FILE="$(tempfile -d "$TMP_DIR" -m 664 --suffix "$TMP_SUFFIX")"
+#	cp "$1" "$TMP_FILE"
+#	ARG_FILE="z:$TMP_FILE"
+	ARG_FILE="z:$(echo "$1" |tr "/" "\\")"
 fi
 export WINEPREFIX
 export WINEDLLOVERRIDES
 wine C:\\\\windows\\\\command\\\\start.exe /Unix $WINEPREFIX/dosdevices/c:/users/$USER/Start\ Menu/Programs/Visor\ de\ Microsoft\ PowerPoint\ .lnk "$ARG_FILE" || rc=$?
 #[ -z "$TMP_FILE" ] || rm -f "$TMP_FILE"
-tmp_clean
+
+#tmp_clean
 exit $rc || rc=$?
