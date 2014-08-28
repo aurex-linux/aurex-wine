@@ -1,3 +1,14 @@
+aurex-wine (1.7.25+aurex1) trusty; urgency=medium
+
+  * First version for aurex 14.04 trusty
+  * Upgraded depends to wine 1.7 (Maybe this is a risky decission and
+    perhaps this change requires a more intensive testing, but 
+    aurex-powerpoint-viewer seems to work fine with 1.7).
+    We have to upgrade wine sooner or later, and migration for amd64 uses
+    to be tricky, so ... "May the Force be with us"
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Thu, 28 Aug 2014 12:20:17 +0200
+
 aurex-wine (1.6.1+aurex8) precise; urgency=low
 
   * Fixed accessing files with spaces in pathname

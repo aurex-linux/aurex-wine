@@ -7,38 +7,13 @@ Standards-Version: 3.8.4
 
 Package: aurex-wine
 Architecture: any
-Depends: ${misc:Depends}, zenity, wine, wine1.6, wine1.6-i386 [i386], wine1.6-amd64 [amd64], wine1.6-i386 [amd64]
+Depends: ${misc:Depends}, zenity, wine, wine1.7
 Description: wine settings for aurex
- This package provides wine configuration and settings for aurex, and
- fixes upgrade issues from wine1.4 in amd64 architecture
-
-Package: wine1.4
-Architecture: any
-Depends: ${misc:Depends}, wine1.6
-Description: wine1.4 transitional package
- wine1.4 transitional package to wine1.6
-
-Package: wine1.4-common
-Architecture: all
-Depends: ${misc:Depends}, wine1.6-common
-Description: wine1.4 transitional package
- wine1.4 transitional package to wine1.6
-
-Package: wine1.4-i386
-Architecture: i386
-Depends: ${misc:Depends}, wine1.6-i386
-Description: wine1.4 transitional package
- wine1.4 transitional package to wine1.6
-
-Package: wine1.4-amd64
-Architecture: amd64
-Depends: ${misc:Depends}, wine1.6-amd64
-Description: wine1.4 transitional package
- wine1.4 transitional package to wine1.6
+ This package provides wine configuration and settings for aurex
 
 Package: aurex-powerpoint-viewer
 Architecture: all
-Depends: ${misc:Depends}, powerpoint-viewer-bin, wine1.6, aurex-wine (>= 1.6.1+aurex3), aurex-default-associations (>=12.04.51)
+Depends: ${misc:Depends}, powerpoint-viewer-bin, wine1.7 | wine1.6, aurex-wine (>= 1.6.1+aurex3), aurex-default-associations (>=12.04.51)
 Description: Microsoft PowerPoint Viewer
  This package automagically installs and configures
  Microsoft PowerPoint Viewer to run under wine
